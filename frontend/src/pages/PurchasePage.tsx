@@ -6,7 +6,7 @@ import { CartItem } from "../types/CartItem";
 
 function PurchasePage() {
     const navigate = useNavigate();
-    const {title, bookId, price} = useParams(); //use a parameter called title and bookId and price
+    const {title, bookId, price} = useParams(); //use parameters called title and bookId and price
     const {addToCart} = useCart();
     const [purchaseAmount, setPurchaseAmount] = useState<number>(0);
 
@@ -24,9 +24,9 @@ function PurchasePage() {
     return (
         <>
         <Welcome />
-        <h2>Purchase {title}. Cost: {price}</h2>
+        <h2>Purchase {title}. <br/> Cost per Book: ${price}</h2>
 
-        <div>
+        <div>Quantity: 
             <input type="number" placeholder="Enter quantity" value={purchaseAmount} 
             onChange={(x) => setPurchaseAmount(Number(x.target.value))}/>
             <button onClick={handleAddToCart}>Add to Cart</button>

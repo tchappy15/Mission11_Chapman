@@ -37,12 +37,14 @@ namespace Mission11_Chapman.Controllers
                 booksQuery = booksQuery.OrderBy(b => b.Title);
             }
 
+            var totalNumBooks = booksQuery.Count();
+
             var booksFromRoute = booksQuery
                 .Skip((pageNum - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
 
-            var totalNumBooks = _bookContext.Books.Count();
+          
 
             var someObject = new //to return multiple things, we put them in an object and then return that object
             {

@@ -34,7 +34,7 @@ function BookList({selectedCategories}: {selectedCategories: string[]}) {
 
             ); //this goes and looks for the data(json) and passes parameters up to .net
             const data = await response.json(); //this holds the data. Gets the json out of the response
-            setBooks(data.books); //set books to hold the data. books is the first item in the json object that we are getting her
+            setBooks(data.books); //set books to hold the data. books is the first item in the json object that we are getting here
             setTotalItems(data.totalNumBooks);
             setTotalPages(Math.ceil(totalItems/pageSize));
         };
@@ -50,8 +50,8 @@ function BookList({selectedCategories}: {selectedCategories: string[]}) {
             <br/>
             <div> 
                 {/* sorting button */}
-                <button onClick={() => setSortBy("title")}>Sort by Title</button> 
-                <button onClick={() => setSortBy("")}>Default Sort</button> 
+                <button data-bs-toggle="tooltip" data-bs-placement="top" title="Alphabetize Book List" onClick={() => setSortBy("title") }>Sort by Title</button> 
+                <button data-bs-toggle="tooltip" data-bs-placement="top" title="Unsorted Book List" onClick={() => setSortBy("")}>Default Sort</button> 
             </div>
             <br/>
 
@@ -84,11 +84,11 @@ function BookList({selectedCategories}: {selectedCategories: string[]}) {
                             {b.pageCount} pages</li>
                         <li>
                             <strong>Price: </strong>
-                            {b.price}</li>
+                            ${b.price}</li>
                     </ul>
 
                     <button className="btn btn-success" 
-                    onClick={() => navigate(`/purchase/${b.title}/${b.bookId}`)}> {/*pass in the book name for whichever one we clicked purchase for */}
+                    onClick={() => navigate(`/purchase/${b.title}/${b.bookId}/${b.price}`)}> {/*pass in the book name for whichever one we clicked purchase for */}
                         Purchase
                     </button>
 

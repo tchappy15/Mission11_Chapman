@@ -14,7 +14,7 @@ function App() {
         <Routes>
           <Route path='/' element={<BooksPage/>} /> {/*home page */}
           <Route path='/books' element={<BooksPage/>} /> 
-          <Route path='/purchase/:title/:bookId/' element={<PurchasePage/>} /> {/*we need to tell it that it might be recieving parameters */}
+          <Route path='/purchase/:title/:bookId/:price' element={<PurchasePage/>} /> {/*we need to tell it that it might be recieving parameters */}
           <Route path='/cart' element={<CartPage/>} />
         </Routes>
       </Router>
