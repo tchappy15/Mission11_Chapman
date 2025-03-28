@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Book } from "./types/Book";
+import { Book } from "../types/Book";
+import { useNavigate } from "react-router-dom";
 
-function BookList() {
+function BookList({selectedCategories}: {selectedCategories: string[]}) {
     //we want to use the Book object to store the data as it comes in
 
     //use useState to store the Project object in an array
@@ -19,9 +20,17 @@ function BookList() {
 
     const [sortBy, setSortBy] = useState(""); // Sorting state
 
+    const navigate = useNavigate();
+
+
     useEffect(() => { //useEffect only goes and gets data when needed instead of all the time
         const fetchBooks = async() => {
-            const response = await fetch(`https://localhost:5000/book/allbooks?pageSize=${pageSize}&pageNum=${pageNum}&sortBy=${sortBy}`
+
+            const categoryParams = selectedCategories.map((cat) => `genres=${encodeURIComponent(cat)}`).join('&');
+
+
+            const response = await fetch(`https://localhost:5000/book/allbooks?pageSize=${pageSize}&pageNum=${pageNum}&sortBy=${sortBy}${selectedCategories.length ? `&${categoryParams}` : ''}`
+
 
             ); //this goes and looks for the data(json) and passes parameters up to .net
             const data = await response.json(); //this holds the data. Gets the json out of the response
@@ -32,11 +41,11 @@ function BookList() {
 
         fetchBooks(); //call fetchBooks
 
-    }, [pageSize, pageNum, totalItems, sortBy]); //This is called the dependency array. can put what to watch for when we want the useEffect to run again
+    }, [pageSize, pageNum, totalItems, sortBy, selectedCategories]); //This is called the dependency array. can put what to watch for when we want the useEffect to run again
 
     return(
         <>
-            <h1>Books</h1>
+            
 
             <br/>
             <div> 
@@ -77,6 +86,12 @@ function BookList() {
                             <strong>Price: </strong>
                             {b.price}</li>
                     </ul>
+
+                    <button className="btn btn-success" 
+                    onClick={() => navigate(`/purchase/${b.title}/${b.bookId}`)}> {/*pass in the book name for whichever one we clicked purchase for */}
+                        Purchase
+                    </button>
+
                     </div>
                 </div>
         
