@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Book } from "../types/Book";
 import { useNavigate } from "react-router-dom";
+import { fetchBooks } from "../api/BooksAPI";
+import Pagination from "./Pagination";
 
 function BookList({selectedCategories}: {selectedCategories: string[]}) {
     //we want to use the Book object to store the data as it comes in
@@ -14,8 +16,6 @@ function BookList({selectedCategories}: {selectedCategories: string[]}) {
     //for page number tracker
     const [pageNum, setPageNum] = useState<number>(1);
 
-    const[totalItems, setTotalItems] = useState<number>(0);
-
     const[totalPages, setTotalPages] = useState<number>(0);
 
     const [sortBy, setSortBy] = useState(""); // Sorting state
@@ -23,25 +23,33 @@ function BookList({selectedCategories}: {selectedCategories: string[]}) {
     const navigate = useNavigate();
 
 
+    const [error, setError] = useState<string | null>(null);
+
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => { //useEffect only goes and gets data when needed instead of all the time
-        const fetchBooks = async() => {
+        const loadBooks = async() => {
 
-            const categoryParams = selectedCategories.map((cat) => `genres=${encodeURIComponent(cat)}`).join('&');
+            try{
+                setLoading(true);
+                const data = await fetchBooks(pageSize, pageNum, sortBy, selectedCategories); //have to pass these 3 things in since that's how we defined fetchProjects in the ProjectsAPI
+            
 
+            setBooks(data.books); //set projects to hold the data. projects is the first item in the json object that we are getting her
+            setTotalPages(Math.ceil(data.totalNumBooks/pageSize));
+        } catch (error) {
+            setError((error as Error).message);
+        } finally { //finally is used to execute stuff EVEN IF there is an error
+            setLoading(false);
+        }
+    };
 
-            const response = await fetch(`https://localhost:5000/book/allbooks?pageSize=${pageSize}&pageNum=${pageNum}&sortBy=${sortBy}${selectedCategories.length ? `&${categoryParams}` : ''}`
+        loadBooks(); //call loadBooks
 
+    }, [pageSize, pageNum, sortBy, selectedCategories]); //This is called the dependency array. can put what to watch for when we want the useEffect to run again
 
-            ); //this goes and looks for the data(json) and passes parameters up to .net
-            const data = await response.json(); //this holds the data. Gets the json out of the response
-            setBooks(data.books); //set books to hold the data. books is the first item in the json object that we are getting here
-            setTotalItems(data.totalNumBooks);
-            setTotalPages(Math.ceil(totalItems/pageSize));
-        };
-
-        fetchBooks(); //call fetchBooks
-
-    }, [pageSize, pageNum, totalItems, sortBy, selectedCategories]); //This is called the dependency array. can put what to watch for when we want the useEffect to run again
+    if (loading) return <p>Loading projects...</p>
+    if (error) return <p className="text-red-500">Error: {error}</p>
 
     return(
         <>
@@ -97,36 +105,16 @@ function BookList({selectedCategories}: {selectedCategories: string[]}) {
         
         )}
 
-        <button disabled={pageNum===1} onClick={() => setPageNum(pageNum - 1)}>Previous</button>
-
-        {
-            [...Array(totalPages)].map((_, i) => (
-                <button key={i + 1} onClick={() => setPageNum(i + 1)} disabled={pageNum=== (i+1)}>
-                    {i + 1}
-                </button>
-            ))
-        }
-
-        <button disabled={pageNum===totalPages} onClick={() => setPageNum(pageNum + 1)}>Next</button>
-
-
-        <br/>
-        {/* getting pagination into our page */}
-        <label>
-            Results per page:  
-            {/* using inline function below */}
-            <select value={pageSize} 
-            onChange={(p) => {
-                setPageSize(Number(p.target.value))
-                setPageNum(1) //resetting pagenum back to one
-            
-                }}
-                >
-                <option value='5'>5</option>
-                <option value='10'>10</option>
-                <option value='20'>20</option>
-            </select>
-        </label>
+        <Pagination 
+            pageNum={pageNum}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setPageNum}
+            onPageSizeChange={(newSize) => {
+                setPageSize(newSize);
+                setPageNum(1);
+            }}
+        />
         </>
     );
 }
